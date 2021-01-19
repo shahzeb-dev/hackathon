@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<global-property doc:name="Global Property" doc:id="8a57c695-aca0-4502-a668-ff9eafeab36a" name="env" value="dev" />
+	<db:config name="global_Database_Config" doc:name="Database Config" doc:id="e721294a-6510-4f5e-ab6b-e7cd944fe90e" >
+		<db:my-sql-connection host="${database.host}" port="${database.port}" user="${database.user}" password="${secure::db-password}" database="${database.name}"/>
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="d5c869df-f1ab-4022-ba94-2e36e7a350a7" file="${env}-config.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="61ae4bde-f842-4c1c-8ffd-03264c22af4f" file="${env}.properties" key="hackathon" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="657e8cb1-d3b9-4296-91f1-59a78e7a6bb0" >
+		<salesforce:basic-connection username="shahzeb.khan@apisero.com" password="Shahzeb1234@" securityToken="a4tVVmxxwmY4RhOKYAaCvqUI" url="https://login.salesforce.com/services/Soap/u/49.0" />
+	</salesforce:sfdc-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="6dbd7a18-abcc-4149-97a8-ad7c1cb39fa2" >
+		<file:connection />
+	</file:config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="c5521576-9867-4f9a-84cb-8578d8e2c65d" >
+		<email:smtp-connection host="${email.Host}" port="${email.Port}" user="${email.User}" password="${email.Password}">
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+</mule>

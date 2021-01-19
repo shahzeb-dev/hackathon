@@ -1,0 +1,143 @@
+{
+	"info": {
+		"_postman_id": "c6f4724d-7579-4a56-b484-c53fe4db1187",
+		"name": "Employee Hackathon",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Fetches All Employee Details",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"empName\": \"Some another\",\r\n    \"empProject\": \"Internal\",\r\n    \"empEmail\": \"some.new@apisero.com\",\r\n    \"empAge\": 20,\r\n    \"empManager\": \"Santosh\",\r\n    \"empCity\": \"Indore New\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/employee",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"employee"
+					]
+				},
+				"description": "Fetches All Employee Details"
+			},
+			"response": []
+		},
+		{
+			"name": "Save a new employee",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"empName\": \"Nausheen Shaikh nNew\",\r\n        \"empProject\": \"Internal\",\r\n        \"empEmail\": \"nausheen.shaikh@apisero.com\",\r\n        \"empAge\": 24,\r\n        \"id\": 2,\r\n        \"empManager\": \"Vikas\",\r\n        \"empCity\": \"Pune\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/employee",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"employee"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch employee details with ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/api/employee/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"employee",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update employee Details",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"empName\": \"Nausheen Shaikh nNew\",\r\n        \"empProject\": \"Internal\",\r\n        \"empEmail\": \"nausheen.shaikh@apisero.com\",\r\n        \"empAge\": 34,\r\n        \"id\": 2,\r\n        \"empManager\": \"Vikas\",\r\n        \"empCity\": \"Pune\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/employee/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"employee",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Employee details",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/api/employee/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"employee",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

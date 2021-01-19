@@ -1,0 +1,11 @@
+database:
+  host: "localhost"
+  port: "3306"
+  user: "root"
+  name: "emp"
+  
+email:
+  Host: "smtp.gmail.com"
+  Port: "587"
+  User: "fulfillment@apisero.com"
+  Password: "ApiseroDev@2020"

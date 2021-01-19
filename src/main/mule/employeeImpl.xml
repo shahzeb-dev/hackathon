@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<flow name="GET_Employee_By_ID_Flow" doc:id="4373ab7a-374c-4778-a1e5-bab5757bff89" >
+		<db:select doc:name="Fetch Employee Data" doc:id="7a47b664-b8f8-4c88-8222-16b909c7dcf7" config-ref="global_Database_Config">
+			<db:sql ><![CDATA[select * from employee where id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: attributes.uriParams.'id'
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="JAVA to Json" doc:id="31a59a06-7343-42df-9436-3976b2259426" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="605371b6-a222-4629-8d40-75bb5a1cd007" message="##### DATA FETCHED######"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d1660527-3c32-416d-abea-f5ed351c4950" type="ANY">
+				<email:send doc:name="Send" doc:id="c5a4c091-aa3e-46b7-a7e9-34248aff26f6" config-ref="Email_SMTP" fromAddress="${email.User}" subject="Issue on Employee">
+					<email:to-addresses >
+						<email:to-address value="shahzeb.khan@apisero.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["There has been an issue in fetching Employee Details"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="GET_All_Employees" doc:id="6b821e1b-f019-48e2-a986-22484cde2556" >
+		<db:select doc:name="Fetch All Employee Details" doc:id="f0178c90-bd6c-4f75-bd34-266f338b92e4" config-ref="global_Database_Config">
+			<db:sql ><![CDATA[select * from employee]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="JAVA to Json" doc:id="a707f860-6f43-458b-8d9b-08ff506ef2cc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e32cee38-0d4e-4da6-bfdf-ea11dfb75da0" message="##### DATA FETCHED FOR ALL EMPLOYEES######" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Error Propagate" doc:id="78cd13fc-78fe-4ede-8a04-a478bf8c44ab" type="ANY" >
+				<email:send doc:name="Send" doc:id="eeae0b4e-c121-45b7-b082-9bdcbe24821b" config-ref="Email_SMTP" fromAddress="${email.User}" subject="Issue on Employee" >
+					<email:to-addresses >
+						<email:to-address value="shahzeb.khan@apisero.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["There has been an issue in fetching all Employee Details"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="UPDATE_Employee_Details" doc:id="5f3ec7d0-a822-4ad8-bb1f-20337b3c3338" >
+		<db:update doc:name="Update Employee Details" doc:id="d0f4b927-df01-43a7-8291-0f88f328e97e" config-ref="global_Database_Config">
+			<db:sql ><![CDATA[UPDATE employee
+SET empName = :empName, empProject= :empProject,
+empEmail= :empEmail,empAge = :empAge,empManager = :empManager,empCity= :empCity
+WHERE id = :id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empName: payload.empName,
+	empProject: payload.empProject,
+	empEmail: payload.empEmail,
+	empAge: payload.empAge,
+	empManager: payload.empManager,
+	empCity: payload.empCity,
+	id: attributes.uriParams.'id'
+}]]]></db:input-parameters>
+		</db:update>
+		<set-payload value="Data Updated Successfully" doc:name="Set Payload" doc:id="c6d294e9-cffe-466a-8611-20347832d4d1" />
+		<logger level="INFO" doc:name="Logger" doc:id="d32f979e-12b2-4b7d-a323-98f270a3f388" message="####### EMPLOYEE DETAILS UPDATED#########" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Error Propagate" doc:id="60ef7158-3080-4ab0-8769-59bafa4674b4" type="ANY" >
+				<email:send doc:name="Send" doc:id="f885d537-59dd-4bef-9925-7804af8dadc1" config-ref="Email_SMTP" fromAddress="${email.User}" subject="Issue on Employee" >
+					<email:to-addresses >
+						<email:to-address value="shahzeb.khan@apisero.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["There has been an issue in Updating employee Details"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="POST_New_Employee" doc:id="e8afc87d-c6b3-4b2d-9e9d-ddccacfaa993" >
+		<db:select doc:name="Select the latest id" doc:id="5eeda102-7a4e-4176-bb57-b5fa75f90bfd" config-ref="global_Database_Config" target="maxId">
+			<db:sql ><![CDATA[select max(id) as maxId from employee]]></db:sql>
+		</db:select>
+		<db:insert doc:name="Insert New Employee Data" doc:id="c390c5c9-9ac3-4bd2-b498-4adfd8c3d7e5" config-ref="global_Database_Config">
+			<db:sql ><![CDATA[INSERT INTO employee
+VALUES (:id, :empName, :empEmail, :empAge, :empCity, :empProject, :empManager);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	empName: payload.empName,
+	empProject: payload.empProject,
+	empEmail: payload.empEmail,
+	empAge: payload.empAge,
+	empManager: payload.empManager,
+	empCity: payload.empCity,
+	id: vars.maxId[0].maxId as Number  + 1  
+}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Data Saved Successfully" doc:name="Set Payload" doc:id="14380344-c693-489a-b3a9-29a13ac57037" />
+		<logger level="INFO" doc:name="Logger" doc:id="ff644441-160f-4828-a05f-4ea63fe4e855" message="#######NEW EMPLOYEE DETAILS SAVED#########" />
+		<os:store doc:name="Store" doc:id="84031642-4ddd-4879-9dc6-dfd8df9a37d0" key="maxId">
+			<os:value ><![CDATA[#[vars.maxId[0].maxId as Number]]]></os:value>
+		</os:store>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="84c3b02c-d1fb-4e4c-a3cf-27efd8f00234" type="ANY" >
+				<email:send doc:name="Send" doc:id="bce7f5b6-45dc-457c-9efe-b4cd70e43d00" config-ref="Email_SMTP" fromAddress="${email.User}" subject="Issue on Employee" >
+					<email:to-addresses >
+						<email:to-address value="shahzeb.khan@apisero.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["There has been an issue in Saving Employee Details"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="DELETE_Employee_flow" doc:id="e82c1104-2d58-4b7a-bbcb-fd640da7d30d" >
+		<db:delete doc:name="Delete Employee" doc:id="f3d2dfdb-bc93-4dea-aebf-5dd3b02cd853" config-ref="global_Database_Config">
+			<db:sql ><![CDATA[DELETE FROM employee WHERE id=:id
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: attributes.uriParams.'id'
+}]]]></db:input-parameters>
+		</db:delete>
+		<set-payload value="Data Deleted Successfully" doc:name="Set Payload" doc:id="7f8d6662-e298-4e0d-93ba-4396899b1b26" />
+		<logger level="INFO" doc:name="Logger" doc:id="d80fe94d-df41-454b-aaa2-e1ca8defb3a0" message="####### EMPLOYEE DETAILS DELETED#########" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="409e3560-e5cb-402b-bfef-cab944efdd78" type="ANY" >
+				<email:send doc:name="Send" doc:id="c0e0830a-4b5f-4eb8-8b93-0acac3015487" config-ref="Email_SMTP" fromAddress="${email.User}" subject="Issue on Employee" >
+					<email:to-addresses >
+						<email:to-address value="shahzeb.khan@apisero.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["There has been an issue in deleting Employee Details"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="SyncwithDB" doc:id="a86299cf-3948-43a7-8c9c-df6457def198" >
+		<db:listener table="employee" doc:name="On Table Row" doc:id="8208d6d8-f386-46b5-9cd4-8780a144e99b" config-ref="global_Database_Config" watermarkColumn="id" idColumn="id">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</db:listener>
+		<ee:transform doc:name="Transform Message" doc:id="0f15c579-f55e-44b9-9ce4-83a8302efdf3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[
+	{
+		id: payload.id,
+		empName: payload.empName,
+		empEmail:payload.empEmail,
+		empAge: payload.empAge,
+		empCity: payload.empCity,
+		empProject: payload.empProject,
+		empManager: payload.empManager	
+	}
+]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert objectType="Employee__c" externalIdFieldName="id__c" doc:name="Upsert" doc:id="5960af13-f990-4eaf-bfad-43ebf3509e51" config-ref="Salesforce_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="60b350be-e7e5-4a39-afe5-00ad6be24724" message="#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="afdee0d0-3157-419f-ab0d-e6530c0d1c85" type="ANY" >
+				<email:send doc:name="Send" doc:id="86721cfc-dd2c-4cfd-a7a7-39dcf35e5227" config-ref="Email_SMTP" fromAddress="${email.User}" subject="Issue on Employee" >
+					<email:to-addresses >
+						<email:to-address value="shahzeb.khan@apisero.com" />
+					</email:to-addresses>
+					<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["There has been an issue in Upserting data to Salesforce"]]]></email:content>
+					</email:body>
+				</email:send>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="writeToCSV" doc:id="86c8e9ce-208c-4f0f-8bf1-43d6d90423ae" >
+		<scheduler doc:name="Scheduler" doc:id="7f95aadf-4a29-48f1-b425-11fcf6c82d1a" >
+			<scheduling-strategy >
+				<cron expression="0 0 20 * * ?" timeZone="CST" />
+			</scheduling-strategy>
+		</scheduler>
+		<db:select doc:name="Select" doc:id="ffd087a3-6f3c-40e0-a80e-a0f8f3c39ec6" config-ref="global_Database_Config">
+			<db:sql ><![CDATA[select * from employee]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="4c679f8d-72d5-482c-99a7-f1b08b6c7bc2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv 
+header= false
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="3d69aba0-5e6d-4c2f-96fc-67c16afdca11" config-ref="File_Config" path="records.csv"/>
+	</flow>
+</mule>
